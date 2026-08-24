@@ -177,12 +177,11 @@
     </div>
   </div>
 
-<script type="module">
-  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
   const SUPABASE_URL = 'https://dtjqagpevrclmgitzhxk.supabase.co';
   const SUPABASE_ANON_KEY = 'sb_publishable_R3MlHnKG48Hyu_hG4U2TMg_rQNuS2QX';
-  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   /** @type {{id: string, text: string, checked: boolean}[]} */
   let items = [];
@@ -196,7 +195,7 @@
   const clearCheckedBtn = document.getElementById('clear-checked');
 
   async function load() {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
       .from('shopping_items')
       .select('*')
       .order('created_at', { ascending: true });
@@ -246,7 +245,7 @@
   async function addItem(text) {
     const trimmed = text.trim();
     if (!trimmed) return;
-    const { error } = await supabase
+    const { error } = await supabaseClient
       .from('shopping_items')
       .insert({ text: trimmed, checked: false });
     if (error) {
@@ -260,7 +259,7 @@
   async function toggleItem(id) {
     const item = items.find(i => i.id === id);
     if (!item) return;
-    const { error } = await supabase
+    const { error } = await supabaseClient
       .from('shopping_items')
       .update({ checked: !item.checked })
       .eq('id', id);
@@ -273,7 +272,7 @@
   }
 
   async function deleteItem(id) {
-    const { error } = await supabase
+    const { error } = await supabaseClient
       .from('shopping_items')
       .delete()
       .eq('id', id);
@@ -295,7 +294,7 @@
   clearCheckedBtn.addEventListener('click', async () => {
     const checkedIds = items.filter(i => i.checked).map(i => i.id);
     if (checkedIds.length === 0) return;
-    const { error } = await supabase
+    const { error } = await supabaseClient
       .from('shopping_items')
       .delete()
       .in('id', checkedIds);
